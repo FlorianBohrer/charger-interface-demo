@@ -1,0 +1,106 @@
+/* (Design-Fundament)*/
+
+@import "tailwindcss";
+
+@theme {
+  --color-hyc-bg: oklch(0.16 0.012 256);
+  --color-hyc-surface: oklch(0.205 0.014 256);
+  --color-hyc-surface-2: oklch(0.245 0.016 256);
+  --color-hyc-line: oklch(0.32 0.018 256);
+  --color-hyc-line-soft: oklch(0.27 0.016 256);
+
+  --color-hyc-text: oklch(0.97 0.004 250);
+  --color-hyc-muted: oklch(0.66 0.018 256);
+  --color-hyc-faint: oklch(0.5 0.016 256);
+
+  --color-hyc-accent: oklch(0.84 0.17 158);
+  --color-hyc-accent-2: oklch(0.9 0.16 175);
+  --color-hyc-accent-dim: oklch(0.6 0.12 160);
+  --color-hyc-warn: oklch(0.82 0.15 78);
+  --color-hyc-danger: oklch(0.68 0.2 24);
+
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  background: var(--color-hyc-bg);
+  color: var(--color-hyc-text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  user-select: none;
+  overflow: hidden;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+.touch {
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+
+@keyframes hyc-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.animate-breathe {
+  animation: hyc-breathe 2.6s var(--ease-in-out) infinite;
+}
+
+@keyframes hyc-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+.animate-flow {
+  animation: hyc-flow 1s linear infinite;
+}
+
+@keyframes hyc-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.fade-in {
+  animation: hyc-fade-in 0.28s var(--ease-out) both;
+}
+
+.todo {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: var(--color-hyc-faint);
+  font-family: var(--font-display);
+  border: 1px dashed var(--color-hyc-line);
+  border-radius: 1rem;
+  margin: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-breathe,
+  .animate-flow,
+  .fade-in {
+    animation: none;
+  }
+}

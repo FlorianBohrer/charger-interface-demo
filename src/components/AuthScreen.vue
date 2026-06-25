@@ -1,9 +1,11 @@
 <script setup lang="ts">
+
 import { storeToRefs } from "pinia";
 import { CreditCard, QrCode, Smartphone, ArrowLeft, Loader2 } from "lucide-vue-next";
 import type { FunctionalComponent } from "vue";
 import { useChargerStore } from "../state/charger";
 import type { AuthMethod } from "../sim/ocpp";
+import QRScan from "./QRScan.vue";
 
 const store = useChargerStore();
 const { phase, authMethod } = storeToRefs(store);
@@ -19,6 +21,12 @@ const methods: { id: AuthMethod; icon: FunctionalComponent; title: string; sub: 
 
 <template>
     <section class="h-full flex flex-col px-12 py-10">
+
+      <QRScan v-if="phase === 'authorizing' && authMethod === 'QR'" :success="false"/>
+        <template v-else>
+
+
+
           <button
             class="touch self-start flex items-center gap-1.5 text-hyc-muted text-sm
                     hover:text-hyc-text transition-colors mb-8"
@@ -75,5 +83,8 @@ const methods: { id: AuthMethod; icon: FunctionalComponent; title: string; sub: 
           <Loader2 :size="18" class="animate-spin" :stroke-width="2.25" />
           <span class="text-sm">Authorisierung läuft ...</span>
         </div>
-    </section>
+
+  </template>
+
+  </section>
 </template>

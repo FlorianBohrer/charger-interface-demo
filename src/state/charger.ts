@@ -42,6 +42,7 @@ interface State {
   station: { stationId: string; model: string; firmware: string };
   connectors: Record<ConnectorId, ConnectorInfo>;
   authMethod: AuthMethod | null;
+  authorized: boolean;
   selectedConnector: ConnectorId | null;
   limit: ChargeLimit;
   transactionId: string | null;
@@ -60,6 +61,7 @@ export const useChargerStore = defineStore("charger", {
       B: { type: "CHAdeMO", maxPowerKw: 200, status: "Available" },
     },
     authMethod: null,
+    authorized : false,
     selectedConnector: null,
     limit: { mode: "full" },
     transactionId: null,
@@ -99,11 +101,17 @@ export const useChargerStore = defineStore("charger", {
             };
             break;
 
-          case "AuthorizeResponse":
-            if (msg.accepted && this.phase === "authorizing") {
-              this.phase = "selectConnector";
-            }
-            break;
+      case "AuthorizeResponse":
+  if (msg.accepted && this.phase === "authorizing") {
+    this.authorized = true;                 // -> QrScan zeigt den Check
+    setTimeout(() => {
+      if (this.phase === "authorizing") {
+        this.authorized = false;
+        this.phase = "selectConnector";     // erst dann weiter
+      }
+    }, 900);
+  }
+  break;
 
           case "TransactionEvent":
             if (msg.eventType === "Started") {
@@ -142,7 +150,7 @@ export const useChargerStore = defineStore("charger", {
       transport?.send({ action: "Authorize", method, idTag: "DEMO-" + method });
     },
 
-    selecConnector(id: ConnectorId) {
+    selectConnector(id: ConnectorId) {
       if (this.phase === "selectConnector" && this.connectors[id].status === "Available") {
         this.selectedConnector = id;
         this.phase = "configure";
@@ -160,7 +168,6 @@ export const useChargerStore = defineStore("charger", {
     startCharging(limit: ChargeLimit) {
       if (this.phase !== "configure" || !this.selectedConnector) return;
       this.limit = limit;
-      this.phase = "finishing";
       transport?.send({
         action: "RequestStart",
         connectorId: this.selectedConnector,
@@ -186,6 +193,7 @@ export const useChargerStore = defineStore("charger", {
     reset() {
       this.phase = "idle";
       this.authMethod = null;
+      this.authorized = false;
       this.selectedConnector = null;
       this.limit = { mode: "full" };
       this.transactionId = null;

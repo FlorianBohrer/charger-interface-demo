@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import type { Locale } from "./i18n";
-// import { useChargerStore } from "./charger";
+import { useChargerStore } from "./charger";
 
 type Overlay = "help" | "emergency" | null;
 
@@ -10,17 +10,7 @@ interface State {
   overlay: Overlay;
 }
 
-/**
- * TODO 
- * GANZ WICHTIG BARRIERFREIHEIT
- * — UI-Store: Sprache, Vorlesen (TTS), Overlays (Hilfe/Not-Halt).
- * Actions zu implementieren:
- *  - cycleLocale()      : de <-> en
- *  - toggleTts()        : tts umschalten, bei "aus" speechSynthesis.cancel()
- *  - openHelp()/closeHelp()
- *  - triggerEmergency() : useChargerStore().emergencyAbort(); overlay = "emergency"
- *  - resetEmergency()   : overlay = null; useChargerStore().reset()
- */
+/** UI-Store: Sprache, Vorlesen (TTS), Overlays (Hilfe/Not-Halt). */
 export const useUiStore = defineStore("ui", {
   state: (): State => ({
     locale: "de",
@@ -29,22 +19,27 @@ export const useUiStore = defineStore("ui", {
   }),
   actions: {
     cycleLocale() {
-      // TODO
+      this.locale = this.locale === "de" ? "en" : "de";
     },
     toggleTts() {
-      // TODO
+      this.tts = !this.tts;
+      if (!this.tts && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
     },
     openHelp() {
-      // TODO
+      this.overlay = "help";
     },
     closeHelp() {
-      // TODO
+      if (this.overlay === "help") this.overlay = null;
     },
     triggerEmergency() {
-      // TODO
+      useChargerStore().emergencyAbort();
+      this.overlay = "emergency";
     },
     resetEmergency() {
-      // TODO
+      this.overlay = null;
+      useChargerStore().reset();
     },
   },
 });

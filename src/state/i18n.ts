@@ -11,8 +11,12 @@ type Dict = Record<string, string>;
  * Platzhalter mit Parametern, z. B. "connector.name": "Anschluss {id}".
  */
 const de: Dict = {
-  // TODO: deutsche Texte
-};
+    "idle.eyebrow": "Bereit zum Laden",
+    // "idle.title": ,
+    // "idle.subtitle",
+    // "idle.tapCard":,
+    // "idle.start":,
+  };
 
 const en: Dict = {
   // TODO: englische Texte

@@ -12,6 +12,7 @@
   --color-hyc-line-soft: oklch(0.27 0.016 256);
 
   --color-hyc-text: oklch(0.97 0.004 250);
+  --color-hyc-muted2: oklch(0.66 0.018 256);
   --color-hyc-muted: oklch(0.66 0.018 256);
   --color-hyc-faint: oklch(0.5 0.016 256);
 
@@ -45,6 +46,11 @@ body,
 .font-display {
   font-family: var(--font-display);
 }
+
+.border-spec {
+  border-bottom: 1px;
+}
+
 .tnum {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
@@ -88,6 +94,34 @@ body,
   animation: hyc-fade-in 0.28s var(--ease-out) both;
 }
 
+/* QR-Scan-Animationen */
+@keyframes qr-pulse {
+  0% { transform: scale(0.85); opacity: 0.55; }
+  70% { opacity: 0; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
+@keyframes qr-beam {
+  0% { transform: translateY(-72px); }
+  50% { transform: translateY(72px); }
+  100% { transform: translateY(-72px); }
+}
+@keyframes qr-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+@keyframes qr-pop {
+  0% { transform: scale(0.4); opacity: 0; }
+  60% { transform: scale(1.12); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-qr-pulse { animation: qr-pulse 2.2s ease-out infinite; }
+.animate-qr-beam {
+  box-shadow: 0 0 14px 2px var(--color-hyc-accent);
+  animation: qr-beam 2.4s ease-in-out infinite;
+}
+.animate-qr-bob { animation: qr-bob 1.6s ease-in-out infinite; }
+.animate-qr-pop { animation: qr-pop 0.4s ease-out; }
+
 .todo {
   display: grid;
   place-items: center;
@@ -102,7 +136,11 @@ body,
 @media (prefers-reduced-motion: reduce) {
   .animate-breathe,
   .animate-flow,
-  .fade-in {
+  .fade-in,
+  .animate-qr-pulse,
+  .animate-qr-beam,
+  .animate-qr-bob,
+  .animate-qr-pop {
     animation: none;
   }
 }

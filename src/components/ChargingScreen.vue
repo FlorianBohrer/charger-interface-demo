@@ -18,47 +18,51 @@ const targetText = computed(() => {
 
 <template>
   <section class="h-full flex flex-col px-12 py-8">
+    <!-- ============ ZONE 2: Hauptbereich ============ -->
+    <div class="flex-1 grid grid-cols-[auto_1fr] items-center gap-12 mt-2">
 
-      <div class="px-5 py-2.5 m-3 flex self-end text-right border rounded-4xl text-hyc-accent-2 bg-hyc-accent/10 hyc-accent/30 text-hyc-accenr
-">
-      <!-- ziel -->
-       <div v-if="limit.mode !== 'full'"
-  class="self-end m-3 flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-hyc-accent/30 bg-hyc-accent/10 text-hyc-accent">
-  <Target :size="22" :stroke-width="2" class="shrink-0" />
-  <span>Ziel: <span class="text-xl font-semibold">{{ targetText }}</span></span>
-</div>
+      <!-- links: der Ring -->
+      <BatteryRing :soc="meter?.soc ?? 0" :active="phase === 'charging'" label="State of Charge" />
 
-     
-      <!-- ausgewählter Anschluss -->
+      <!-- rechts: Hero-Card + Info-Grid -->
+      <div class="flex flex-col gap-4">
 
+        <!-- Hero: Leistung (kW) + Energie (kWh) -->
+        <div class="rounded-xl border border-hyc-line bg-hyc-surface px-6 py-5">
+          <div class="flex items-center gap-2 text-hyc-muted">
+            <Gauge :size="16" /><span class="text-xs uppercase tracking-[0.18em]">Leistung</span>
+          </div>
+          <div class="bg-hyc-surface  items-baseline gap-2 mt-1">
+            <span class="font-display text-6xl font-medium tnum text-hyc-accent">{{ meter?.powerKw ?? 0 }}</span>
+            <span class="text-2xl text-hyc-muted">kW</span>
+            <!-- <span class="ml-auto font-display text-2xl tnum">
+              {{ (meter?.energyKwh ?? 0).toFixed(1) }} <span class="text-base text-hyc-muted">kWh</span>
+            </span> -->
+          </div>
+        </div>
+
+        <!-- Info-Grid mit Dauer · Strom · Spannung · Kosten -->
+        <div class="grid grid-cols-2 rounded-xl border   border-hyc-accent bg-hyc-surface">
+          <div class="  px-4 py-3">
+            <div class="text-hyc-muted text-[11px] uppercase tracking-wider flex items-center gap-1"><Clock :size="13" /> Dauer</div>
+            <div class="font-display text-xl tnum mt-1">{{ formatDuration(meter?.durationS ?? 0) }}</div>
+          </div>
+          <div class="  px-4 py-3">
+            <div class="text-hyc-muted text-[11px] uppercase tracking-wider flex items-center gap-1"><Zap :size="13" /> Strom</div>
+            <div class="font-display text-xl tnum mt-1">{{ meter?.current ?? 0 }} A</div>
+          </div>
+          <div class="  px-4 py-3">
+            <div class="text-hyc-muted text-[8px] uppercase tracking-wider flex items-center gap-1"><Zap :size="13" /> Spannung</div>
+            <div class="font-display text-l tnum mt-1">{{ meter?.voltage ?? 0 }} V</div>
+          </div>
+          <div class=" px-4 py-3">
+            <div class="text-hyc-muted text-[8px] uppercase tracking-wider flex items-center gap-1"><Receipt :size="13" /> Kosten</div>
+            <div class="font-display text-l tnum mt-1">{{ formatEur(meter?.costEur ?? 0) }}</div>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <!-- ============ ZONE 1: Status-Zeile (FERTIG) ============ -->
-    <div class="flex items-center gap-2 text-hyc-accent">
-      <span
-        class="w-2 h-2 rounded-full bg-hyc-accent"
-        :class="phase === 'charging' ? 'animate-breathe' : ''"
-      ></span>
-      <span class="text-xs uppercase tracking-[0.22em]">
-        {{ phase === 'finishing' ? 'Wird beendet' : 'Ladevorgang aktiv' }}
-      </span>
-    </div>
-
-    <!-- ============ ZONE 2: Hauptbereich  ============ -->
-    <!-- Tipp: <div class="flex-1 grid grid-cols-[auto_1fr] items-center gap-12 mt-2"> -->
-    <!--   links:  <BatteryRing :soc="meter?.soc ?? 0" :active="phase === 'charging'" :label="'State of Charge'" /> -->
-    <!--   rechts (flex flex-col gap-4): -->
-    <!--     - Hero-Card: Leistung GROSS  {{ meter?.powerKw ?? 0 }} kW   + kWh  {{ (meter?.energyKwh ?? 0).toFixed(1) }} -->
-    <!--     - Info-Grid (grid grid-cols-2 gap-3): -->
-    <!--         Dauer    {{ formatDuration(meter?.durationS ?? 0) }} -->
-    <!--         Strom    {{ meter?.current ?? 0 }} A -->
-    <!--         Spannung {{ meter?.voltage ?? 0 }} V -->
-    <!--         Kosten   {{ formatEur(meter?.costEur ?? 0) }} -->
-
-    <!-- ============ ZONE 3: Laden beenden  ============ -->
-    <!-- <button class="touch self-center ..." :disabled="phase !== 'charging'" @click="store.stop()"> -->
-    <!--   <Square :size="16" fill="currentColor" :stroke-width="0" /> Laden beenden -->
-    <!-- </button> -->
 
   </section>
 </template>
+

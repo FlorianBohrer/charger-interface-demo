@@ -21,10 +21,10 @@ const { summary, selectedConnector } = storeToRefs(store);
               <CircleCheckBig :size="32" class="text-hyc-accent" :stroke-width="2" />
             </span>
               <div>
-                  <h2 class="font-display text-3xl font-medium">Ladevorgang abgeschlossen</h2>
-                    <p class="text-hyc-text/70 flex items-center gap-2 mt-1">
+                  <h2 class="font-display text-3xl font-light ">Ladevorgang abgeschlossen</h2>
+                    <p class="text-hyc-text/90 text-2xl font-bold flex items-center gap-2 mt-1">
                       <Unplug :size="16" :stroke-width="1.75" />
-                          Bitte Stecker entnehmen — Anschluss {{ selectedConnector }}
+                          Bitte Stecker entnehmen —  <span class="text-2xl text-hyc-accent">Anschluss {{ selectedConnector }} </span>
                     </p>
               </div>
           </div>
@@ -32,8 +32,8 @@ const { summary, selectedConnector } = storeToRefs(store);
           <!-- Werte -->  
         <div class="grid grid-cols-3 gap-4 mt-auto px-5  ">
               <!--geladene Energie -->
-            <div class=" border-r-1 mt-0.5 pl-4"">
-              <BatteryCharging :size="42" class="text-hyc-accent" :stroke-width="2" />
+            <div class=" border-r-1 mt-0.5 pl-4 pt-5" >
+              <BatteryCharging :size="42" class=" pb-1 text-hyc-accent" :stroke-width="2" />
               <div class="font-display text-5xl font-medium  text-hyc-accent">
                 {{ summary.energyKwh.toFixed(1) }}
                    <span class="text-xl text-amber-100 ml-1">kWh</span>
@@ -43,8 +43,8 @@ const { summary, selectedConnector } = storeToRefs(store);
                   </div>
             </div>
 
-            <div class=" border-r-1 mt-0.5 pl-4" >
-                <EuroIcon :size="42" class="text-hyc-accent text-center"  :stroke-width="2" />
+            <div class=" border-r-1 mt-1.5 pl-9 pt-5" >
+                <EuroIcon :size="42" class=" pb-1 text-hyc-accent text-center"  :stroke-width="2" />
                   <div class=" font-display text-5xl font-medium text-hyc-accent ml-1">
                     {{ summary.costEur.toFixed(1) }}
                       <span class="text-xl text-amber-100 text-s pl-2 tracking-[0.16em] uppercase">
@@ -55,8 +55,8 @@ const { summary, selectedConnector } = storeToRefs(store);
                   </div>
             </div>
 
-            <div class="mt-0.5">
-                <TimerIcon :size="42" class="text-hyc-accent" :stroke-width="2" />
+            <div class="mt-0.5 pt-5">
+                <TimerIcon :size="42" class=" pb-1 text-hyc-accent" :stroke-width="2" />
                   <div class=" font-display text-5xl font-medium text-hyc-accent ml-1">
                     {{ formatDuration(summary.durationS) }}
                       <span class="text-xl 

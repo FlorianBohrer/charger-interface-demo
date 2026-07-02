@@ -18,6 +18,7 @@ import { useAnnouncer } from "./state/useAnnouncer";
 import StatusBar from "./components/StatusBar.vue";
 import PhysicalButtons from "./components/PhysicalButtons.vue";
 import IdleScreen from "./components/IdleScreen.vue";
+import ParticleField from "./components/ParticleField.vue";
 import AuthScreen from "./components/AuthScreen.vue";
 import SelectConnectorScreen from "./components/SelectConnectorScreen.vue";
 import ChargeConfigScreen from "./components/ChargeConfigScreen.vue";
@@ -73,7 +74,10 @@ const screen = computed(() => {
       <StatusBar />
 
       <main class="flex-1 relative overflow-hidden">
-        <component :is="screen.comp" :key="screen.key" class="absolute inset-0 fade-in" />
+        <!-- animiertes Energie-Partikelfeld hinter den Screens -->
+        <ParticleField class="z-0" />
+
+        <component :is="screen.comp" :key="screen.key" class="absolute inset-0 z-[1] fade-in" />
 
         <HelpOverlay v-if="overlay === 'help'" class="fade-in" />
         <EmergencyOverlay v-if="overlay === 'emergency'" class="fade-in" />

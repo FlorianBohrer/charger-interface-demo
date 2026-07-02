@@ -52,12 +52,12 @@ const targetText = computed(() => {
             <div class="font-display text-xl tnum mt-1">{{ meter?.current ?? 0 }} A</div>
           </div>
           <div class="  px-4 py-3">
-            <div class="text-hyc-muted text-[8px] uppercase tracking-wider flex items-center gap-1"><Zap :size="13" /> Spannung</div>
+            <div class="text-hyc-muted text-[11px] uppercase tracking-wider flex items-center gap-1"><Zap :size="13" /> Spannung</div>
             <div class="font-display text-l tnum mt-1">{{ meter?.voltage ?? 0 }} V</div>
           </div>
           <div class=" px-4 py-3">
-            <div class="text-hyc-muted text-[8px] uppercase tracking-wider flex items-center gap-1"><Receipt :size="13" /> Kosten</div>
-            <div class="font-display text-l tnum mt-1">{{ formatEur(meter?.costEur ?? 0) }}</div>
+            <div class="text-hyc-muted text-[15px] uppercase tracking-wider flex items-center gap-1"><Receipt :size="13" /> Kosten</div>
+            <div class="font-display text-xl tnum mt-1">{{ formatEur(meter?.costEur ?? 0) }}</div>
           </div>
         </div>
       </div>

@@ -1,8 +1,8 @@
 import type { InboundMessage, OutboundMessage } from "./ocpp";
 
 /**
- * VORGEGEBEN — die Transport-Abstraktion (dein wichtigstes Architektur-Pattern).
- * Store spricht NUR gegen dieses Interface, nie direkt gegen WebSocket oder Mock.
+ * Transport-Abstraktion: der Store spricht nur gegen dieses Interface,
+ * nie direkt gegen WebSocket oder Mock-Backend.
  */
 export interface ChargePointTransport {
   onMessage(cb: (msg: InboundMessage) => void): void;
@@ -11,10 +11,8 @@ export interface ChargePointTransport {
 }
 
 /**
- * TODO: echter WebSocket-Transport zum C++/Crow-Backend.
- * - im Konstruktor `new WebSocket(url)`
- * - "message"-Event parsen (JSON) und an alle Listener weitergeben
- * - send(): nur senden, wenn readyState === OPEN
+ * Echter WebSocket-Transport zum C++/Crow-Backend – noch nicht angebunden,
+ * bis dahin läuft die App gegen das MockCrowBackend.
  */
 export class WebSocketTransport implements ChargePointTransport {
   // private ws: WebSocket;

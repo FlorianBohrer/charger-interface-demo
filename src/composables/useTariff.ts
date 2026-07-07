@@ -4,9 +4,9 @@ import { ref, onMounted } from "vue";
  * Holt den aktuellen Day-Ahead-Börsenstrompreis (aWATTar, kostenlos, kein Key).
  * marketprice kommt in EUR/MWh -> /1000 = EUR/kWh.
  *
- * HINWEIS (Case-Study): so ein Fetch gehört eigentlich ins C++/Crow-Backend,
- * das den Preis cached und per WebSocket ans HMI schiebt. Hier im Frontend
- * nur zur Übung – Fallback greift, wenn die API weg ist oder CORS blockt.
+ * TODO: perspektivisch ins Crow-Backend verlagern (dort cachen + per WebSocket
+ * ans HMI schieben), damit das Frontend nicht direkt gegen die externe API geht.
+ * Fallback greift, wenn die API nicht erreichbar ist oder CORS blockt.
  */
 const FALLBACK_EUR_PER_KWH = 0.59;
 

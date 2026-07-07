@@ -1,4 +1,4 @@
-// TODO: Formatierungs-Helfer implementieren.
+// Formatierungs-Helfer für Zeit, Preis und Uhrzeit.
 
 export function formatDuration(s: number) {
   const m = Math.floor(s / 60), sec = Math.floor(s % 60);

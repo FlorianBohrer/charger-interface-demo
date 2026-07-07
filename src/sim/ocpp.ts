@@ -1,7 +1,6 @@
 /**
- * VORGEGEBEN — das Domänen-Protokoll (OCPP-orientiert).
- * Das ist dein "Vertrag": gegen diese Typen baust du Store, Mock-Backend und UI.
- * Hier musst du nichts implementieren.
+ * Domänen-Protokoll (OCPP-orientiert): der Typ-Vertrag zwischen Store,
+ * Mock-Backend und UI.
  */
 
 export type ConnectorId = "A" | "B";

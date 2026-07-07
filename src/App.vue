@@ -1,11 +1,8 @@
 <script setup lang="ts">
 /**
- * VORGEGEBEN — das App-Gerüst: Geräterahmen, Kiosk-Skalierung, Phasen-Routing,
- * Overlays, Taster. Die Bausteine (Screens/Store/Overlays) füllst du aus.
- *
- * Hinweis: Solange store.connect() (TODO) keine BootNotification liefert, bleibt
- * phase "boot" -> es zeigt das Boot-Overlay
- *  sobald connect() + MockCrowBackend stehen, läuft der Screen-Wechsel automatisch
+ * App-Gerüst: Geräterahmen, Kiosk-Skalierung, Phasen-Routing, Overlays, Taster.
+ * Der Screen-Wechsel folgt store.phase; bis die erste BootNotification vom
+ * MockCrowBackend eintrifft, bleibt phase "boot" und das Boot-Overlay ist sichtbar.
  */
 
  
@@ -88,7 +85,7 @@ const screen = computed(() => {
         >
           <div class="flex flex-col items-center gap-3">
             <span class="font-display text-2xl font-semibold tracking-tight">hypercharger</span>
-            <span class="text-hyc-faint text-sm">boot · implementiere store.connect()</span>
+            <span class="text-hyc-faint text-sm">System wird gestartet …</span>
           </div>
         </div>
       </main>

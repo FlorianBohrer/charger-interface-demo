@@ -16,7 +16,6 @@ export type Phase =
   | "idle"
   | "selectAuth"
   | "authorizing"
-  | "selectConnector"
   | "configure"
   | "charging"
   | "finishing"
@@ -107,7 +106,7 @@ export const useChargerStore = defineStore("charger", {
     setTimeout(() => {
       if (this.phase === "authorizing") {
         this.authorized = false;
-        this.phase = "selectConnector";     // erst dann weiter
+        this.phase = "configure";           // anschluss steht schon fest -> ladeziel
       }
     }, 900);
   }
@@ -150,18 +149,11 @@ export const useChargerStore = defineStore("charger", {
       transport?.send({ action: "Authorize", method, idTag: "DEMO-" + method });
     },
 
-    selectConnector(id: ConnectorId) {
-      if (this.phase === "selectConnector" && this.connectors[id].status === "Available") {
+    /** anschluss schon im idle wählen (vor der authentifizierung) */
+    chooseConnector(id: ConnectorId) {
+      if (this.connectors[id]?.status === "Available") {
         this.selectedConnector = id;
-        this.phase = "configure";
       }
-    },
-
-    /** configure -> selectConnector (Auswahl zurücknehmen) */
-    backToConnector() {
-      this.selectedConnector = null;
-      this.limit = { mode: "full" };
-      this.phase = "selectConnector";
     },
 
     /** Ladeziel bestätigen: RequestStart mit limit senden (nur aus configure) */
@@ -205,7 +197,7 @@ export const useChargerStore = defineStore("charger", {
       this.reset();
     },
 
-    /** Abbrechen aus selectAuth/authorizing/selectConnector/configure -> idle */
+    /** Abbrechen aus selectAuth/authorizing/configure -> idle */
     cancelAuth() {
       this.reset();
     },

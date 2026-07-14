@@ -17,7 +17,6 @@ import PhysicalButtons from "./components/PhysicalButtons.vue";
 import IdleScreen from "./components/IdleScreen.vue";
 import ParticleField from "./components/ParticleField.vue";
 import AuthScreen from "./components/AuthScreen.vue";
-import SelectConnectorScreen from "./components/SelectConnectorScreen.vue";
 import ChargeConfigScreen from "./components/ChargeConfigScreen.vue";
 import ChargingScreen from "./components/ChargingScreen.vue";
 import SummaryScreen from "./components/SummaryScreen.vue";
@@ -42,8 +41,6 @@ const screen = computed(() => {
     case "selectAuth":
     case "authorizing":
       return { key: "auth", comp: AuthScreen };
-    case "selectConnector":
-      return { key: "select", comp: SelectConnectorScreen };
     case "configure":
       return { key: "configure", comp: ChargeConfigScreen };
     case "charging":

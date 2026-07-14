@@ -2,11 +2,14 @@
 import { Zap, Wifi } from "lucide-vue-next";
 import { storeToRefs } from "pinia";
 import { useChargerStore } from "../state/charger";
+import { useUiStore } from "../state/ui";
 import { useClock } from "../state/useClock";
 import { formatClock } from "../state/format";
 
 const store = useChargerStore();
 const { connectors } = storeToRefs(store);
+const ui = useUiStore();
+const { locale } = storeToRefs(ui);
 const { now } = useClock();
 </script>
 
@@ -32,6 +35,7 @@ const { now } = useClock();
       </div>
       <Wifi :size="16" class="text-hyc-muted" :stroke-width="1.75" />
       <span class="font-display tnum text-hyc-text font-medium">{{ formatClock(now) }}</span>
+      <span class="font-display text-sm font-bold text-hyc-accent tracking-wide">{{ locale.toUpperCase() }}</span>
     </div>
 
   </header>

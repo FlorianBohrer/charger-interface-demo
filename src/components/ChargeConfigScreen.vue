@@ -34,8 +34,8 @@ const limit = computed<ChargeLimit>(() => {
 <template>
   <section class="h-full flex flex-col px-12 py-9">
     <button class="touch self-start flex items-center gap-1.5 text-hyc-muted text-sm hover:text-hyc-text mb-6"
-      @click="store.backToConnector()">
-      <ArrowLeft :size="16" :stroke-width="2" /> Zurück
+      @click="store.reset()">
+      <ArrowLeft :size="16" :stroke-width="2" /> Abbrechen
     </button>
 
     <h2 class="font-display text-3xl font-medium">Ladeziel wählen</h2>

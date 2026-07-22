@@ -1,5 +1,5 @@
-
-npm install# Charger Interface
+[README.md](https://github.com/user-attachments/files/30262058/README.md)
+# Charger Interface
 
 `Vue 3` `TypeScript` `Vite` `Tailwind CSS`
 
@@ -21,6 +21,93 @@ The idea came from standing in front of a real one. Alpitronic builds Hypercharg
 Vue 3 with the Composition API, single file components, TypeScript, Tailwind for styling, Vite as the dev server. No backend, no router, no state library.
 
 Everything hangs on one composable, `useChargingSession`. A single reactive state value, transitions as named functions (`authenticate()`, `plugIn()`, `startCharging()`, `abort()`), and each transition checks whether it's legal from where the session currently is. The screens are dumb: props in, events out, they never touch session state directly. Adding the error handling afterwards took about an hour, because there was exactly one place to add it.
+
+## Architecture at a glance
+
+Three layers, and data only ever moves in a loop. A driver's touch goes **down** — screen → store → charger. Fresh charger data comes back **up** — charger → store → screen re-renders. The current build centres on a single Pinia store (`state/charger.ts`) that talks *only* to a `ChargePointTransport` interface, so the simulated charger can be swapped for a real WebSocket backend without touching a single screen.
+
+```mermaid
+flowchart TB
+    subgraph Screens
+        S["IdleScreen · AuthScreen · ChargeConfigScreen<br/>ChargingScreen · SummaryScreen"]
+    end
+    subgraph Store
+        P["Pinia · state/charger.ts<br/>phase state machine + actions"]
+    end
+    subgraph Transport
+        T["ChargePointTransport interface<br/>MockCrowBackend — sim  /  WebSocketTransport — real, TODO"]
+    end
+
+    S -->|"actions ↓  beginAuth · authorize · startCharging · stop"| P
+    P -->|"state ↑  phase · meter · summary"| S
+    P -->|"send ↓  Authorize · RequestStart · RequestStop"| T
+    T -->|"onMessage ↑  BootNotification · AuthorizeResponse · TransactionEvent"| P
+```
+
+### The session as a state machine
+
+One `phase` value decides which screen is on the display. Every transition is a named action that first checks whether it's legal from the current phase — the reason the "car charging but not authenticated" bug from the early boolean version simply can't happen anymore.
+
+```mermaid
+stateDiagram-v2
+    [*] --> boot
+    boot --> idle: BootNotification
+    idle --> selectAuth: beginAuth()
+    idle --> authorizing: authorize(method)
+    selectAuth --> authorizing: authorize(method)
+    authorizing --> configure: AuthorizeResponse accepted
+    configure --> charging: startCharging() → TransactionEvent Started
+    charging --> charging: TransactionEvent Updated (live meter)
+    charging --> finishing: stop()
+    finishing --> summary: TransactionEvent Ended
+    charging --> summary: charge limit reached → Ended
+    summary --> idle: dismissSummary()
+
+    selectAuth --> idle: cancel()
+    authorizing --> idle: cancel()
+    configure --> idle: cancel()
+
+    note right of charging
+        Emergency stop (Not-Halt):
+        emergencyAbort() → RequestStop
+    end note
+```
+
+### A full session, end to end
+
+The happy path as messages between the driver, the screen, the store and the simulated charger. The store never blocks — it fires a request and waits for the backend to report back, exactly like a real OCPP charge point would.
+
+```mermaid
+sequenceDiagram
+    actor Driver
+    participant Screen
+    participant Store as Store · Pinia
+    participant Backend as MockCrowBackend
+
+    Backend-->>Store: BootNotification
+    Store-->>Screen: phase = idle
+
+    Driver->>Screen: tap "Start charging"
+    Screen->>Store: authorize(method)
+    Store->>Backend: Authorize
+    Backend-->>Store: AuthorizeResponse (accepted)
+    Store-->>Screen: phase = configure
+
+    Driver->>Screen: pick target — Full / Time / Price
+    Screen->>Store: startCharging(limit)
+    Store->>Backend: RequestStart
+    Backend-->>Store: TransactionEvent Started
+    Store-->>Screen: phase = charging
+
+    loop every tick while charging
+        Backend-->>Store: TransactionEvent Updated (meter)
+        Store-->>Screen: live power · SoC · cost
+    end
+
+    Backend-->>Store: TransactionEvent Ended (limit reached)
+    Store-->>Screen: phase = summary
+    Driver->>Screen: dismiss → back to idle
+```
 
 ## What I learned
 
@@ -48,15 +135,16 @@ Sunlight on a glossy panel erases anything mid-grey. Thin fonts disappear. Someo
 
 You need Node.js. That's the whole list, there's no database and no API key.
 
-```
-git clone https://github.com/FlorianBohrer/charger-interface.git
-cd charger-interface
+```bash
+git clone https://github.com/FlorianBohrer/charger-interface-demo.git
+cd charger-interface-demo
 npm install
 npm run dev
 ```
 
 Vite serves it at http://localhost:5173. Resize the window to something landscape and roughly tablet sized, that's the format it's built for.
 
-npm run dev        
-npm run typecheck  
+```bash
+npm run dev        # dev server
+npm run typecheck  # vue-tsc --noEmit
 ```

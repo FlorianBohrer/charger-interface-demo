@@ -1,32 +1,72 @@
-[README.md](https://github.com/user-attachments/files/30262058/README.md)
 # Charger Interface
 
+> **Interactive HMI prototype inspired by real Alpitronic Hyperchargers.**
+>
+> A DC fast-charger touch interface built with **Vue 3**, **TypeScript**, **Pinia** and **Tailwind CSS** — modelling a full charging session as a finite state machine, with a realistic charging simulation and an architecture ready for a real OCPP backend.
 
+![Vue 3](https://img.shields.io/badge/Vue-3-42b883?logo=vuedotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178c6?logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646cff?logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06b6d4?logo=tailwindcss&logoColor=white)
 
-Vue 3 | TypeScript | Pinia | TailwindCSS | Vite | OCPP Simulation
+**🔗 Live Demo:** _coming soon_ · **📸 Demo GIF:** _add `docs/demo.gif`_
 
-A simulated HMI for a DC fast charger. No charger attached, no OCPP backend, no payment provider. Just the screen a driver looks at while their car is charging, and the state machine behind it.
+> _Independent study project. Not affiliated with or endorsed by Alpitronic. "Hypercharger" is a trademark of its respective owner._
 
-The idea came from standing in front of a real one. Alpitronic builds Hyperchargers about twenty minutes by bike from here, so I rode over and watched the display through a full session. Almost nobody reads it. People plug in, glance at the screen once, and go back to their phone. That changed what I thought I was building.
+---
 
-## What it does
+## Overview
 
-- The full session as one state machine: idle → authentication → plug in → charging → complete
-- A simulated charging curve, so power tapers off as the battery fills instead of sitting at maximum until 100%
-- Error states you can trigger by hand: authentication failed, cable not detected, emergency stop
-- Language switch between German, Italian and English (this is South Tyrol, everything here is bilingual anyway)
-- Touch targets sized for someone standing outside wearing gloves
-- Dark theme, high contrast, oversized numbers, because the thing lives outdoors in the sun
+This is a simulated Human-Machine Interface (HMI) for a DC fast charger. There is **no physical charger, payment provider or OCPP backend** connected — the project focuses entirely on the driver's experience during a charging session and on the architecture behind it.
 
-## How it's built
+The idea came from standing in front of a real charger. Alpitronic builds Hyperchargers about twenty minutes by bike from where I live, so I rode over and watched people use them. Almost nobody reads the display: they plug in, glance at the screen once, and immediately return to their phone.
 
-Vue 3 with the Composition API, single file components, TypeScript, Tailwind for styling, Vite as the dev server. No backend, no router, no state library.
+That observation changed how I approached the interface. Instead of building "another charging screen", I designed one that communicates only the information a driver actually needs within a few seconds.
 
-Everything hangs on one composable, `useChargingSession`. A single reactive state value, transitions as named functions (`authenticate()`, `plugIn()`, `startCharging()`, `abort()`), and each transition checks whether it's legal from where the session currently is. The screens are dumb: props in, events out, they never touch session state directly. Adding the error handling afterwards took about an hour, because there was exactly one place to add it.
+---
 
-## Architecture at a glance
+## Tech Stack — and why
 
-Three layers, and data only ever moves in a loop. A driver's touch goes **down** — screen → store → charger. Fresh charger data comes back **up** — charger → store → screen re-renders. The current build centres on a single Pinia store (`state/charger.ts`) that talks *only* to a `ChargePointTransport` interface, so the simulated charger can be swapped for a real WebSocket backend without touching a single screen.
+| Tool | Why it's here |
+| --- | --- |
+| **Vue 3** (Composition API) | Component isolation and reusable composables |
+| **TypeScript** + discriminated unions | Model connector status & charge limits as unions so **invalid states are unrepresentable** |
+| **Pinia** | A single `phase` state machine instead of several scattered booleans |
+| **`ChargePointTransport` interface** | The UI talks to *one* interface → mock ↔ real WebSocket backend are swappable |
+| **Tailwind CSS** | Fast iteration on a high-contrast, large-target kiosk layout |
+| **Vite** | Instant dev server and HMR |
+
+---
+
+## Key Features
+
+- Complete charging session modelled as a **finite state machine** (only legal transitions allowed)
+- **Realistic charging curve** — power tapers as state of charge rises (see [Design Decisions](#design-decisions))
+- **OCPP-inspired** message flow (`Authorize`, `TransactionEvent`, `MeterValues`)
+- **Guarded states & error handling** — emergency stop (Not-Halt) overlay, connector fault state, and transitions that make "charging without authorisation" impossible
+- **Configurable charging** — full charge, by duration, or by price (auto-stop at the limit)
+- **Kiosk design for outdoor use** — large typography and high contrast for sunlight readability on a 22" touchscreen
+- **Accessible motion** — respects `prefers-reduced-motion` (animations and the particle background fall back to a static frame)
+- **i18n layer (DE/EN)** — small `useI18n` composable with parameterised keys; architecture in place, catalogs in progress
+- **Transport abstraction** prepared for a real backend
+
+---
+
+## Screens
+
+> ⚠️ Add real screenshots to `docs/` — the links below are placeholders.
+
+| Idle | Charging |
+| --- | --- |
+| ![Idle screen](docs/idle.png) | ![Charging screen](docs/charging.png) |
+| **Summary** | **Error / Emergency** |
+| ![Summary screen](docs/summary.png) | ![Error screen](docs/error.png) |
+
+---
+
+## Architecture
+
+The app is layered into **presentation → business logic → transport**. Every interaction travels downward; charger events propagate upward. UI components stay independent of the communication layer, which is what makes swapping the simulated backend for a real WebSocket transport straightforward.
 
 ```mermaid
 flowchart TB
@@ -37,105 +77,106 @@ flowchart TB
         P["Pinia · state/charger.ts<br/>phase state machine + actions"]
     end
     subgraph Transport
-        T["ChargePointTransport interface<br/>MockCrowBackend — sim  /  WebSocketTransport — real, TODO"]
+        T["ChargePointTransport (interface)<br/>MockCrowBackend — simulation<br/>WebSocketTransport — future"]
     end
-
-    S -->|"actions ↓  beginAuth · authorize · startCharging · stop"| P
-    P -->|"state ↑  phase · meter · summary"| S
-    P -->|"send ↓  Authorize · RequestStart · RequestStop"| T
-    T -->|"onMessage ↑  BootNotification · AuthorizeResponse · TransactionEvent"| P
+    S -->|"actions ↓"| P
+    P -->|"state ↑"| S
+    P -->|"messages ↓"| T
+    T -->|"events ↑"| P
 ```
 
-### The session as a state machine
+---
 
-One `phase` value decides which screen is on the display. Every transition is a named action that first checks whether it's legal from the current phase — the reason the "car charging but not authenticated" bug from the early boolean version simply can't happen anymore.
+## Session State Machine
+
+The charging workflow is a finite state machine — a single `phase` value instead of independent booleans, so impossible states (e.g. charging without authentication) can't occur.
 
 ```mermaid
 stateDiagram-v2
     [*] --> boot
-    boot --> idle: BootNotification
-    idle --> selectAuth: beginAuth()
-    idle --> authorizing: authorize(method)
-    selectAuth --> authorizing: authorize(method)
-    authorizing --> configure: AuthorizeResponse accepted
-    configure --> charging: startCharging() → TransactionEvent Started
-    charging --> charging: TransactionEvent Updated (live meter)
-    charging --> finishing: stop()
-    finishing --> summary: TransactionEvent Ended
-    charging --> summary: charge limit reached → Ended
-    summary --> idle: dismissSummary()
-
-    selectAuth --> idle: cancel()
-    authorizing --> idle: cancel()
-    configure --> idle: cancel()
-
-    note right of charging
-        Emergency stop (Not-Halt):
-        emergencyAbort() → RequestStop
-    end note
+    boot --> idle
+    idle --> selectAuth
+    selectAuth --> authorizing
+    authorizing --> configure
+    configure --> charging
+    charging --> finishing
+    finishing --> summary
+    summary --> idle
+    charging --> summary
+    selectAuth --> idle
+    authorizing --> idle
+    configure --> idle
 ```
 
-### A full session, end to end
+---
 
-The happy path as messages between the driver, the screen, the store and the simulated charger. The store never blocks — it fires a request and waits for the backend to report back, exactly like a real OCPP charge point would.
+## End-to-End Session
+
+The store behaves like a real charge point: instead of mutating the UI directly, it sends requests and waits for charger events before updating.
 
 ```mermaid
 sequenceDiagram
     actor Driver
     participant Screen
-    participant Store as Store · Pinia
-    participant Backend as MockCrowBackend
-
-    Backend-->>Store: BootNotification
-    Store-->>Screen: phase = idle
-
-    Driver->>Screen: tap "Start charging"
-    Screen->>Store: authorize(method)
+    participant Store
+    participant Backend
+    Driver->>Screen: Start charging
+    Screen->>Store: authorize()
     Store->>Backend: Authorize
-    Backend-->>Store: AuthorizeResponse (accepted)
-    Store-->>Screen: phase = configure
-
-    Driver->>Screen: pick target — Full / Time / Price
-    Screen->>Store: startCharging(limit)
+    Backend-->>Store: Accepted
+    Store-->>Screen: Configure session
+    Driver->>Screen: Start
     Store->>Backend: RequestStart
-    Backend-->>Store: TransactionEvent Started
-    Store-->>Screen: phase = charging
-
-    loop every tick while charging
-        Backend-->>Store: TransactionEvent Updated (meter)
-        Store-->>Screen: live power · SoC · cost
+    Backend-->>Store: Transaction Started
+    Store-->>Screen: Charging
+    loop Charging
+        Backend-->>Store: Meter Values
+        Store-->>Screen: Update UI
     end
-
-    Backend-->>Store: TransactionEvent Ended (limit reached)
-    Store-->>Screen: phase = summary
-    Driver->>Screen: dismiss → back to idle
+    Backend-->>Store: Transaction Ended
+    Store-->>Screen: Summary
 ```
 
-## What I learned
+---
 
-### Booleans are not a state machine
+## Design Decisions
 
-The first version had `isAuthenticated`, `isPlugged`, `isCharging`, `hasError`. Four booleans, sixteen combinations, maybe five of which make sense. At some point while clicking around I ended up in a state where the car was charging but not authenticated, which is a great thing for a payment screen to do. Rewriting it as one state value with named transitions deleted more code than it added.
+### Finite State Machine
+The first version used several boolean flags, which quickly produced invalid states such as "charging without authentication". A single `phase` state machine removed that whole class of bugs and made illegal transitions impossible.
 
-### Coming from Angular signals
+### Component Isolation
+Screens never mutate session state directly — every interaction triggers a clearly named store action. This keeps the UI predictable and the data flow one-directional.
 
-I know Angular, and `ref` and `computed` felt close enough to signals that I got careless. Destructured a `reactive` object, lost the reactivity, then spent twenty minutes staring at a value that refused to update in the template while `console.log` cheerfully showed it changing. What stuck: `ref` for values, `reactive` only with a reason, and never destructure it.
+### Transport Abstraction
+The UI communicates only through the `ChargePointTransport` interface. Today it's backed by a simulated charger (`MockCrowBackend`); a `WebSocketTransport` could connect to a real OCPP backend **without changing a single screen component**.
 
-### Fake data still has to be plausible
+### Realistic Charging Behaviour
+Charging power is **not** linear. It's computed from a piecewise curve — full power up to ~55 % SoC, a linear taper to ~80 %, then a steep drop — mirroring real thermal/battery limits. Time is accelerated for the demo.
 
-My first charging simulation added one percent of state of charge per tick and pushed the power straight to maximum. It looked wrong immediately, and I don't even own an electric car. Real charging tapers hard: high power while the battery is empty, dropping off long before it's full. What I have now is a small lookup curve keyed on state of charge. It isn't physics, but nobody watching it thinks "batteries don't do that."
+### Outdoor Readability
+Designed for a public 22" touchscreen in direct sunlight: large typography, strong contrast, minimal text, and generous touch targets.
 
-### The happy path is the small part
+---
 
-Plug in, authenticate, charge, drive off. That was an afternoon. Everything after it took much longer: what the screen says when the cable won't unlock, what happens when someone walks away mid-session, what a driver sees when payment fails while their car is still plugged in. Most of the interesting UI is the part you hope nobody ever sees.
+## Testing
 
-### A screen outdoors is a different problem
+State-machine transitions are the natural unit to test (legal vs. illegal transitions, meter updates). _Planned — see [Future Improvements](#future-improvements)._
 
-Sunlight on a glossy panel erases anything mid-grey. Thin fonts disappear. Someone standing up with a cable in one hand doesn't read paragraphs. That's the whole reason the numbers are huge and the labels are three words long.
+---
 
-## Running it locally
+## Folder Structure
 
-You need Node.js. That's the whole list, there's no database and no API key.
+```text
+src/
+  components/     # Screens + UI (StatusBar, ConnectorBadge, ChargeCurve, ParticleField, overlays …)
+  state/          # Pinia stores (charger = FSM, ui) + helpers (format, useClock, i18n, useFitScale)
+  composables/    # useTariff (live day-ahead electricity price)
+  sim/            # ocpp.ts (protocol types), transport.ts (interface), MockCrowBackend.ts (simulation)
+```
+
+---
+
+## Running Locally
 
 ```bash
 git clone https://github.com/FlorianBohrer/charger-interface-demo.git
@@ -144,9 +185,28 @@ npm install
 npm run dev
 ```
 
-Vite serves it at http://localhost:5173. Resize the window to something landscape and roughly tablet sized, that's the format it's built for.
+Then open <http://localhost:5173>.
 
 ```bash
-npm run dev        # dev server
-npm run typecheck  # vue-tsc --noEmit
+npm run dev         # dev server (Vite + HMR)
+npm run typecheck   # vue-tsc --noEmit
 ```
+
+---
+
+## Future Improvements
+
+- Real `WebSocketTransport` + OCPP integration
+- Unit tests for the state machine
+- Complete DE/EN catalogs (and add Italian)
+- Payment provider, diagnostics, OTA updates
+- Multiple chargers / connector availability
+- Remote monitoring dashboard
+
+---
+
+## What I Learned
+
+This project taught me more than "another frontend app". I learned how much cleaner a complex workflow becomes when modelled as a finite state machine, how valuable clear architectural boundaries are, and how different designing for a public outdoor display is from a traditional web app.
+
+The most surprising lesson: **the happy path is the small part.** Most of the engineering went into everything that happens when things *don't* go as planned.

@@ -58,9 +58,11 @@ That observation changed how I approached the interface. Instead of building "an
 
 | Idle | Charging |
 | --- | --- |
-| ![Idle screen](docs/idle.png) | ![Charging screen](docs/charging.png) |
+| ![Idle screen]<img width="1696" height="1071" alt="charger-1" src="https://github.com/user-attachments/assets/375b6399-d6a7-4133-aa07-7f9076a72ab3" /> |
+
+| ![Charging screen]<img width="1690" height="1057" alt="charger-4" src="https://github.com/user-attachments/assets/83d3adea-93e5-4f90-b7da-c93679c7745b" /> |
 | **Summary** | **Error / Emergency** |
-| ![Summary screen](docs/summary.png) | ![Error screen](docs/error.png) |
+| ![Summary screen]<img width="1340" height="786" alt="charger-3" src="https://github.com/user-attachments/assets/fa29f110-60ee-4549-a3b4-1d0d9184cf02" /> | ![Error screen]<img width="1696" height="1070" alt="charger-5" src="https://github.com/user-attachments/assets/b2c2fd9c-d081-42f0-9a64-d7645a4b49d0" /> |
 
 ---
 

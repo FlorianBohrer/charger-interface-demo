@@ -9,7 +9,7 @@
 ![Vite](https://img.shields.io/badge/Vite-646cff?logo=vite&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06b6d4?logo=tailwindcss&logoColor=white)
 
-**🔗 Live Demo:** _coming soon_ · **📸 Demo GIF:** _add `docs/demo.gif`_
+**🔗 Live Demo:** _coming soon_ · **Demo GIF:** _add `docs/demo.gif`_
 
 > _Independent study project. Not affiliated with or endorsed by Alpitronic. "Hypercharger" is a trademark of its respective owner._
 

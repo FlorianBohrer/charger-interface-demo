@@ -9,10 +9,6 @@
 ![Vite](https://img.shields.io/badge/Vite-646cff?logo=vite&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06b6d4?logo=tailwindcss&logoColor=white)
 
-**Live Demo:** _coming soon_ ·
-
-> _Independent study project. Not affiliated with or endorsed by Alpitronic. "Hypercharger" is a trademark of its respective owner._
-
 ---
 
 ## Overview
@@ -210,4 +206,24 @@ npm run typecheck   # vue-tsc --noEmit
 
 This project taught me more than "another frontend app". I learned how much cleaner a complex workflow becomes when modelled as a finite state machine, how valuable clear architectural boundaries are, and how different designing for a public outdoor display is from a traditional web app.
 
-The most surprising lesson: **the happy path is the small part.** Most of the engineering went into everything that happens when things *don't* go as planned.
+
+### Booleans are not a state machine
+
+The first version had `isAuthenticated`, `isPlugged`, `isCharging`, `hasError`. Four booleans, sixteen combinations, maybe five of which make sense. At some point while clicking around I ended up in a state where the car was charging but not authenticated, which is a great thing for a payment screen to do. Rewriting it as one state value with named transitions deleted more code than it added.
+
+### Coming from Angular signals
+
+I know Angular, and `ref` and `computed` felt close enough to signals that I got careless. Destructured a `reactive` object, lost the reactivity, then spent twenty minutes staring at a value that refused to update in the template while `console.log` cheerfully showed it changing. What stuck: `ref` for values, `reactive` only with a reason, and never destructure it.
+
+### Fake data still has to be plausible
+
+My first charging simulation added one percent of state of charge per tick and pushed the power straight to maximum. It looked wrong immediately, and I don't even own an electric car. Real charging tapers hard: high power while the battery is empty, dropping off long before it's full. What I have now is a small lookup curve keyed on state of charge. It isn't physics, but nobody watching it thinks "batteries don't do that."
+
+### The happy path is the small part
+
+Plug in, authenticate, charge, drive off. That was an afternoon. Everything after it took much longer: what the screen says when the cable won't unlock, what happens when someone walks away mid-session, what a driver sees when payment fails while their car is still plugged in. Most of the interesting UI is the part you hope nobody ever sees.
+
+### A screen outdoors is a different problem
+
+Sunlight on a glossy panel erases anything mid-grey. Thin fonts disappear. Someone standing up with a cable in one hand doesn't read paragraphs. That's the whole reason the numbers are huge and the labels are three words long.
+

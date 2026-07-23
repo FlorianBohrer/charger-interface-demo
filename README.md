@@ -54,7 +54,6 @@ That observation changed how I approached the interface. Instead of building "an
 
 ## Screens
 
-> ⚠️ Add real screenshots to `docs/` — the links below are placeholders.
 
 | Idle | Charging |
 | --- | --- |

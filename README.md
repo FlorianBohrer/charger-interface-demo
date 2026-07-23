@@ -1,7 +1,9 @@
 [README.md](https://github.com/user-attachments/files/30262058/README.md)
 # Charger Interface
 
-`Vue 3` `TypeScript` `Vite` `Tailwind CSS`
+
+
+Vue 3 | TypeScript | Pinia | TailwindCSS | Vite | OCPP Simulation
 
 A simulated HMI for a DC fast charger. No charger attached, no OCPP backend, no payment provider. Just the screen a driver looks at while their car is charging, and the state machine behind it.
 
